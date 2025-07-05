@@ -1,0 +1,51 @@
+version: '3.3'
+
+services:
+  elastic_search:
+    image: elasticsearch:8.13.4
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: curl -s http://elastic_search:9200 >/dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 50
+    container_name: elasticsearch-server-${ENVIRONMENT:-local}
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+  redis:
+    image: redis/redis-stack
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    container_name: redis-server-${ENVIRONMENT:-local}
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    healthcheck:
+      test: redis-cli ping
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./infrastructure/redis/data:/data:cached
+  pg:
+    image: postgres:16.1-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    healthcheck:
+      test: pg_isready -U postgres -d postgres
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    container_name: pg-server-${ENVIRONMENT:-local}
+    volumes:
+      - ./infrastructure/postgres-data:/var/lib/postgresql/data:cached
+
+
+volumes:
+  infrastructure:

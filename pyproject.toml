@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "etl"
+version = "0.1.0"
+description = ""
+authors = ["Sharafutdinov Danis <sharafutdinovv.danis@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.11.7"
+tenacity = "^9.1.2"
+click = "^8.2.1"
+psycopg2-binary = "^2.9.10"
+ruff = "^0.12.1"
+pydantic-settings = "^2.10.1"
+sqlalchemy = "^2.0.41"
+elasticsearch = "8.18.1"
+redis = "^6.2.0"
+polyfactory = "^2.22.0"
+psycopg = "^3.2.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

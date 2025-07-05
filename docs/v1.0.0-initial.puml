@@ -1,0 +1,36 @@
+@startuml
+autonumber
+participant GetMoviesWorker
+participant SendMoviesWorker
+database    Postgres
+database    Redis
+database    Elastic
+
+== Пайплайн отправки фильмов в Elastic ==
+loop получить и сохранить фильмы
+    GetMoviesWorker -> Redis: Получить дату последнего обновления фильмов
+    Redis -> GetMoviesWorker: Дата последней отправки фильмов в Elastic
+    GetMoviesWorker -> Postgres: Получить фильмы, обновленные с даты X
+    Postgres -> GetMoviesWorker: Список фильмов
+    GetMoviesWorker -> Redis: Записать дату последнего обновления
+    loop сохранить каждый фильм в хранилище
+        GetMoviesWorker -> Redis: Сохранить фильм в хранилище по ключу
+        Redis -> GetMoviesWorker: acknowledgment
+        GetMoviesWorker -> Redis: Положить ключ фильма в очередь на отправку в поиисковый движок
+        Redis -> GetMoviesWorker: acknowledgment
+    end
+end
+
+
+
+loop отправить фильмы в Elastic
+    SendMoviesWorker -> Redis: Получить из очереди ключи фильмов на отправку в Elastic
+    Redis -> SendMoviesWorker: Ключи фильмов для отправки в Elastic
+    loop Отправить фильм в Elastic
+        SendMoviesWorker -> Redis: Получить фильм по ключу
+        Redis -> SendMoviesWorker: Фильм на отправку
+        SendMoviesWorker -> Elastic: Отправление фильма в индекс
+    end
+end
+group
+@enduml
