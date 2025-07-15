@@ -28,8 +28,10 @@ class SetMovieLastSyncTimeCommand(Command[datetime, None]):
 class SaveMovieToStorageCommand(Command[MovieDTO, None]):
     def __init__(
         self,
+        log: logging.Logger,
         storage: Storage,
     ) -> None:
+        self._logger = log
         self._storage = storage
 
     @retry(
@@ -37,7 +39,7 @@ class SaveMovieToStorageCommand(Command[MovieDTO, None]):
         before_sleep=before_sleep_log(logger, logging.WARNING),
     )
     def process(self, value: MovieDTO) -> None:
-        logger.info("Сохранение фильма {}".format(value.id))
+        self._logger.info("Сохранение фильма {}".format(value.id))
         self._storage.save(value)
 
 
@@ -59,8 +61,10 @@ class PushMovieToQueueCommand(Command[MovieDTO, None]):
 class SendMovieToElasticSearchCommand(Command[Iterator[MovieDTO], None]):
     def __init__(
         self,
+        log: logging.Logger,
         client: Elasticsearch,
     ) -> None:
+        self._logger = log
         self._client = client
         self._bulk = helpers.bulk
 
@@ -71,6 +75,6 @@ class SendMovieToElasticSearchCommand(Command[Iterator[MovieDTO], None]):
     def process(self, value: Iterator[MovieDTO]) -> None:
         actions = []
         for movie in value:
-            logger.info("Отправка фильма в индекс {}".format(movie.id))
+            self._logger.info("Отправка фильма в индекс {}".format(movie.id))
             actions.append(serialize(movie))
         self._bulk(client=self._client, actions=actions)

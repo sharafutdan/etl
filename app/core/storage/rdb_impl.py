@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Any
 from app.core.storage.abc import Storage, Queue
-from app.telemetry.logger import logger
 from app.internal.types import HasKeyAndSerializable
 from redis import Redis
+import logging
 
 
 class MovieLastSyncTimeProvider:
@@ -39,12 +39,15 @@ class RedisStorage(Storage):
 
 
 class RedisQueue(Queue):
-    def __init__(self, redis: Redis, queue_name: str = "movies:to-update"):
+    def __init__(
+        self, log: logging.Logger, redis: Redis, queue_name: str = "movies:to-update"
+    ):
+        self._logger = log
         self._redis = redis
         self._queue_name = queue_name
 
     def push(self, key: str) -> None:
-        logger.info("Фильм на обновление {}".format(key))
+        self._logger.info("Фильм на обновление {}".format(key))
         self._redis.lpush(self._queue_name, key)
 
     def pop(self, timeout: int = 0) -> str | None:

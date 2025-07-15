@@ -31,7 +31,8 @@ class GetFilmsLastSyncTimeQuery(Query[None, DateTimeOrNone]):
 
 
 class GetFilmsFromPostgresQuery(Query[datetime, Iterator[MovieDTO]]):
-    def __init__(self, session: Session) -> None:
+    def __init__(self, *, log: logging.Logger, session: Session) -> None:
+        self._log = log
         self._session = session
         self._query_builder = GetUpdatedFilmsQueryBuilder
 
@@ -47,7 +48,7 @@ class GetFilmsFromPostgresQuery(Query[datetime, Iterator[MovieDTO]]):
         )
 
         for movie in movies:
-            logger.info("Найден фильм: %s", movie[0])
+            self._log.info("Найден фильм: %s", movie[0])
             yield MovieDTO(**movie._mapping)
 
 

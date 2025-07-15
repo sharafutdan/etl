@@ -20,6 +20,37 @@ polyfactory = "^2.22.0"
 psycopg = "^3.2.9"
 
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+coverage = "^7.9.2"
+pytest-cov = "^6.2.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = "--cov=app tests"
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "app/alembic/*",
+    "app/adapters/cli/*",
+]
+command_line = "-m pytest -vv -W error::sqlalchemy.exc.SAWarning -W error::sqlalchemy.exc.SADeprecationWarning"
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "class .*\\(.*\\bProtocol\\b.*\\):",
+    "@(?:typing\\.)?overload",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
+show_missing = true
+skip_covered = true
+skip_empty = true
+precision = 2
+# fail_under = 85

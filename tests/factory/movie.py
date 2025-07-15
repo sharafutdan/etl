@@ -1,5 +1,8 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
-from app.core.domain.movie.dto import MovieDTO
+from app.core.domain.movie.dto import MovieDTO, FilmWorkDTO
 
 
 class MovieDTOFactory(ModelFactory[MovieDTO]): ...
+
+
+class FilmWorkFactory(ModelFactory[FilmWorkDTO]): ...

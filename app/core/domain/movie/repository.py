@@ -21,9 +21,10 @@ class GetUpdatedFilmsQueryBuilder:
             film_work.c.title,
             film_work.c.description,
             film_work.c.rating.label("imdb_rating"),
-            func.coalesce(func.array_agg(distinct(genre.c.name)), literal("{}")).label(
-                "genres"
-            ),
+            func.coalesce(
+                func.array_agg(distinct(genre.c.name)).filter(genre.c.name.isnot(None)),
+                literal("{}"),
+            ).label("genres"),
             func.coalesce(
                 func.array_agg(distinct(person.c.full_name)).filter(
                     (person.c.id.is_not(None)) & (person_film_work.c.role == "director")
