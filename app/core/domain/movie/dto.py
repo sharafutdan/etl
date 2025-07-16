@@ -1,6 +1,7 @@
+import datetime
 from pydantic import BaseModel, Field
 from uuid import UUID
-from typing import Annotated
+from typing import Annotated, Any
 import json
 
 
@@ -33,3 +34,17 @@ class MovieDTO(BaseModel):
     @property
     def key(self) -> str:
         return f"movie:{self.id}"
+
+
+class FilmWorkDTO(BaseModel):
+    id: Annotated[UUID, Field(...)]
+    title: Annotated[str, Field(...)]
+    description: Annotated[str, Field(...)]
+    created_at: Annotated[datetime.datetime, Field(..., alias="creation_date")]
+    imdb_rating: Annotated[float, Field(..., alias="rating")]
+    type: Annotated[str, Field(...)]
+    updated_at: Annotated[datetime.datetime, Field(..., alias="modified")]
+
+    @property
+    def as_dict(self) -> dict[str, Any]:
+        return self.model_dump(mode="python", by_alias=True)

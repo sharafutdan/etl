@@ -52,7 +52,8 @@ def main() -> None:
 
         with Session() as session:
             get_movies_query: GetFilmsFromPostgresQuery = GetFilmsFromPostgresQuery(
-                session=session
+                session=session,
+                log=logger,
             )
             movies = get_movies_query.execute(value=last_sync_at)
         for movie in movies:
